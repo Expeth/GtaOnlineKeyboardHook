@@ -1,7 +1,7 @@
 # GTA Online Keyboard Hook
 Keyboard hook for GTA Online
 
-The purpose of this application is to have a possibility easily win a car in GTA Online Casino's Happy Wheal
+The purpose of this application is to have a possibility easily win a car in GTA Online Casino's Lucky Wheal
 
 As may you know, the more you wait before spinning a wheel (before pressing 'S'), the wheel is being spined less.
 Actually, to win a car, you need to wait approximately 4500ms before you press 'S' on your keyboard. The main problem is that
