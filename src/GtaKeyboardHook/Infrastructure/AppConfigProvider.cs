@@ -1,44 +1,107 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Serilog;
 using Vanara.Extensions.Reflection;
 
 namespace GtaKeyboardHook.Model
 {
-   public static class AppConfigProperties
+   public class ProfileConfiguration
    {
-      public static readonly string CallbackDuration = "callbackDuration";
-      public static readonly string HookedKeyCode = "hookedKeyCode";
-      public static readonly string HookedCoordinateX = "hookedCoordinateX";
-      public static readonly string HookedCoordinateY = "hookedCoordinateY";
-      public static readonly string HookedRgbColorCode = "hookedColorRgbCode";
-   }
-   
-   public interface IConfigurationProvider
-   {
-      string GetValue(string property);
-      void SetValue(string property, string value);
-   }
-   
-   public class AppConfigProvider : IConfigurationProvider
-   {
-      private Configuration _configuration;
+      public int CallbackDuration { get; set; }
+      public string HookedKeyCode { get; set; }
+      public int HookedCoordinateX { get; set; }
+      public int HookedCoordinateY { get; set; }
+      public string HookedRgbColorCode { get; set; }
 
-      public AppConfigProvider(Configuration configuration)
+      public override bool Equals(object obj)
       {
-         _configuration = configuration;
+         return CallbackDuration == (obj as ProfileConfiguration).CallbackDuration &&
+                HookedKeyCode == (obj as ProfileConfiguration).HookedKeyCode &&
+                HookedCoordinateX == (obj as ProfileConfiguration).HookedCoordinateX &&
+                HookedCoordinateY == (obj as ProfileConfiguration).HookedCoordinateY &&
+                HookedRgbColorCode == (obj as ProfileConfiguration).HookedRgbColorCode;
+      }
+
+      public override string ToString()
+      {
+         return JsonConvert.SerializeObject(this);
+      }
+   }
+
+   public interface IProfileConfigurationManager
+   {
+      void LoadFromSource();
+      Task LoadFromSourceAsync();
+      ProfileConfiguration GetConfig();
+      void Save();
+      Task SaveAsync();
+   }
+
+   public class JsonConfigurationManager : IProfileConfigurationManager
+   {
+      private static readonly ILogger Logger = Log.ForContext<JsonConfigurationManager>();
+      
+      private readonly string _filePath;
+      private ProfileConfiguration _configuration;
+
+      public JsonConfigurationManager(string filePath)
+      {
+         _filePath = filePath;
       }
       
-      public string GetValue(string property)
+      public async Task LoadFromSourceAsync()
       {
-         return _configuration.AppSettings.Settings[property].Value;
+         try
+         {
+            using var configFile = new StreamReader(new FileStream(_filePath, FileMode.OpenOrCreate));
+
+            var jsonString = await configFile.ReadToEndAsync();
+
+            _configuration = JsonConvert.DeserializeObject<ProfileConfiguration>(jsonString);
+         }
+         catch (Exception e)
+         {
+            Logger.Error(e, "Unable to open file {path}", _filePath);
+            throw;
+         }
       }
 
-      public void SetValue(string property, string value)
+      public void LoadFromSource()
       {
-         _configuration.AppSettings.Settings[property].Value = value;
-         _configuration.Save();
+         LoadFromSourceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+      }
+
+      public ProfileConfiguration GetConfig()
+      {
+         return _configuration;
+      }
+
+      public void Save()
+      {
+         SaveAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+      }
+
+      public Task SaveAsync()
+      {
+         try
+         {
+            using var configFile = new StreamWriter(new FileStream(_filePath, FileMode.Truncate));
+
+            var jsonString = JsonConvert.SerializeObject(_configuration);
+            
+            return configFile.WriteLineAsync(jsonString);
+         }
+         catch (Exception e)
+         {
+            Logger.Error(e, "Unable to open file {path}", _filePath);
+            throw;
+         }
       }
    }
 }

@@ -14,7 +14,6 @@ using GtaKeyboardHook.Model;
 using GtaKeyboardHook.Model.Parameters;
 using GtaKeyboardHook.ViewModel;
 using TinyMessenger;
-using IConfigurationProvider = GtaKeyboardHook.Model.IConfigurationProvider;
 
 namespace GtaKeyboardHook
 {
@@ -61,9 +60,14 @@ namespace GtaKeyboardHook
             var mediaPlayer = new MediaPlayer();
             mediaPlayer.Open(new Uri(Directory.GetCurrentDirectory() + "\\Resources\\intro.mp3"));
             mediaPlayer.Volume = 100;
+
+            //todo: to use Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            var documentsFolder = AppDomain.CurrentDomain.BaseDirectory;
+            var configManager = new JsonConfigurationManager(documentsFolder + "configuration.json");
+            configManager.LoadFromSource();
             
             services.AddSingleton(configuration)
-                .AddSingleton<IConfigurationProvider, AppConfigProvider>()
+                .AddSingleton<IProfileConfigurationManager>(configManager)
                 .AddSingleton(typeof(KeyboardHook))
                 .AddSingleton(mediaPlayer);
         }

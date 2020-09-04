@@ -31,7 +31,7 @@ namespace GtaKeyboardHook.ViewModel
         private ITinyMessengerHub _messageBus;
         private MediaPlayer _mediaPlayer;
         
-        private IConfigurationProvider _appConfigProvider;
+        private IProfileConfigurationManager _appConfigProvider;
         private KeyEventHandler _keyDownHandler;
         private KeyEventHandler _keyUpHandler;
         private KeyboardHook _keyboardHook;
@@ -51,41 +51,37 @@ namespace GtaKeyboardHook.ViewModel
             }
         }
 
-        private int _coordinateX;
         public int CoordinateX
         {
-            get => _coordinateX;
-            set => _coordinateX = value;
+            get => _appConfigProvider.GetConfig().HookedCoordinateX;
+            set => _appConfigProvider.GetConfig().HookedCoordinateX = value;
         }
 
-        private int _coordinateY;
         public int CoordinateY
         {
-            get => _coordinateY;
-            set => _coordinateY = value;
+            get => _appConfigProvider.GetConfig().HookedCoordinateY;
+            set => _appConfigProvider.GetConfig().HookedCoordinateY = value;
         }
 
-        private string _hookedKey;
         public string HookedKey
         {
-            get => _hookedKey;
+            get => _appConfigProvider.GetConfig().HookedKeyCode;
             set
             {
                 if (_keyboardHook != null) _keyboardHook.HookedKey = (Keys)Enum.Parse(typeof(Keys), value);
-                _hookedKey = value;
+                _appConfigProvider.GetConfig().HookedKeyCode = value;
                 Notify();
             }
         }
 
-        private int _callbackDuration;
         public int CallbackDuration
         {
-            get => _callbackDuration;
-            set => _callbackDuration = value;
+            get => _appConfigProvider.GetConfig().CallbackDuration;
+            set => _appConfigProvider.GetConfig().CallbackDuration = value;
         }
 
         public MainWindowViewModel(
-            IConfigurationProvider appConfigProvider,
+            IProfileConfigurationManager appConfigProvider,
             BaseBackgoundWorker<CheckPixelDifferenceParameter> checkPixelForDifferenceTask,
             BaseBackgoundWorker<SendKeyEventParameter> sendKeyEventTask,
             ITinyMessengerHub messageBus,
@@ -115,22 +111,18 @@ namespace GtaKeyboardHook.ViewModel
             _messageBus.Subscribe<PixelColorChangedMessage>(msg =>
             {
                _sendKeyEventTask.Execute(
-                   new SendKeyEventParameter {DelayDuration = _callbackDuration, HookedKey = Keys.S},
+                   new SendKeyEventParameter {DelayDuration = _appConfigProvider.GetConfig().CallbackDuration, HookedKey = Keys.S},
                    new CancellationToken()); 
             });
         }
 
         private void ReadConfiguration()
         {
-            CoordinateX = Int32.Parse(_appConfigProvider.GetValue(AppConfigProperties.HookedCoordinateX));
-            CoordinateY = Int32.Parse(_appConfigProvider.GetValue(AppConfigProperties.HookedCoordinateY));
-            CallbackDuration = Int32.Parse(_appConfigProvider.GetValue(AppConfigProperties.CallbackDuration));
             AvailableKeys = Enum.GetNames(typeof(Keys)).ToList();
-            HookedKey = _appConfigProvider.GetValue(AppConfigProperties.HookedKeyCode);
 
             try
             {
-                var rgbCode = _appConfigProvider.GetValue(AppConfigProperties.HookedRgbColorCode);
+                var rgbCode = _appConfigProvider.GetConfig().HookedRgbColorCode;
                 var codes = rgbCode.Split(',').Select(x => Int32.Parse(x)).ToArray();
 
                 _hookedColor = Color.FromArgb(codes[0], codes[1], codes[2]);
@@ -157,16 +149,13 @@ namespace GtaKeyboardHook.ViewModel
 
         private void SaveConfiguration(object obj)
         {
-            _appConfigProvider.SetValue(AppConfigProperties.CallbackDuration, _callbackDuration.ToString());
-            _appConfigProvider.SetValue(AppConfigProperties.HookedCoordinateX, _coordinateX.ToString());
-            _appConfigProvider.SetValue(AppConfigProperties.HookedCoordinateY, _coordinateY.ToString());
-            _appConfigProvider.SetValue(AppConfigProperties.HookedKeyCode, _hookedKey);
+            _appConfigProvider.SaveAsync();
         }
 
         private void KeyDownHandler(object sender, KeyEventArgs e)
         {
             _checkPixelForDifferenceTask.Execute(
-                new CheckPixelDifferenceParameter {Pixel = new Point(_coordinateX, _coordinateY), HookedColor = _hookedColor},
+                new CheckPixelDifferenceParameter {Pixel = new Point(CoordinateX, CoordinateY), HookedColor = _hookedColor},
                 new CancellationToken());
         }
 
