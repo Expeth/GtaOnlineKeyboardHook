@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -9,9 +8,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
 using Serilog;
 using GtaKeyboardHook.Infrastructure;
+using GtaKeyboardHook.Infrastructure.BackgroundWorkers;
 using GtaKeyboardHook.Model;
+using GtaKeyboardHook.Model.Messages;
+using GtaKeyboardHook.Model.Parameters;
+using TinyMessenger;
+using Color = System.Drawing.Color;
 using KeyEventArgs = System.Windows.Forms.KeyEventArgs;
 using KeyEventHandler = System.Windows.Forms.KeyEventHandler;
 
@@ -21,14 +26,19 @@ namespace GtaKeyboardHook.ViewModel
     {
         private static readonly ILogger Logger = Log.ForContext<MainWindowViewModel>();
 
+        private BaseBackgoundWorker<CheckPixelDifferenceParameter> _checkPixelForDifferenceTask;
+        private BaseBackgoundWorker<SendKeyEventParameter> _sendKeyEventTask;
+        private ITinyMessengerHub _messageBus;
+        private MediaPlayer _mediaPlayer;
+        
         private IConfigurationProvider _appConfigProvider;
         private KeyEventHandler _keyDownHandler;
         private KeyEventHandler _keyUpHandler;
         private KeyboardHook _keyboardHook;
-        private Task _backgroundTask;
         private Color _hookedColor;
         
         public ICommand SaveConfigurationCommand { get; set; }
+        public ICommand PlayerIntroSoundCommand { get; set; }
         
         private IEnumerable<string> _keys; 
         public IEnumerable<string> AvailableKeys
@@ -74,21 +84,40 @@ namespace GtaKeyboardHook.ViewModel
             set => _callbackDuration = value;
         }
 
-        public MainWindowViewModel(IConfigurationProvider appConfigProvider)
+        public MainWindowViewModel(
+            IConfigurationProvider appConfigProvider,
+            BaseBackgoundWorker<CheckPixelDifferenceParameter> checkPixelForDifferenceTask,
+            BaseBackgoundWorker<SendKeyEventParameter> sendKeyEventTask,
+            ITinyMessengerHub messageBus,
+            KeyboardHook keyboardHook,
+            MediaPlayer mediaPlayer)
         {
             _appConfigProvider = appConfigProvider;
-
+            _checkPixelForDifferenceTask = checkPixelForDifferenceTask;
+            _sendKeyEventTask = sendKeyEventTask;
+            _messageBus = messageBus;
+            _keyboardHook = keyboardHook;
+            _mediaPlayer = mediaPlayer;
+            
+            InitializeMessageBusHandlers();
             InitializeCommands();
             ReadConfiguration();
-            
-            _backgroundTask = new Task(CheckPixelColorForDifference);
-            _keyboardHook = new KeyboardHook();
 
             _keyUpHandler = new KeyEventHandler(KeyUpHandler);
             _keyDownHandler = new KeyEventHandler(KeyDownHandler);
             
             _keyboardHook.KeyUpEvent += _keyUpHandler;
             _keyboardHook.KeyDownEvent += _keyDownHandler;
+        }
+
+        private void InitializeMessageBusHandlers()
+        {
+            _messageBus.Subscribe<PixelColorChangedMessage>(msg =>
+            {
+               _sendKeyEventTask.Execute(
+                   new SendKeyEventParameter {DelayDuration = _callbackDuration, HookedKey = Keys.S},
+                   new CancellationToken()); 
+            });
         }
 
         private void ReadConfiguration()
@@ -119,6 +148,11 @@ namespace GtaKeyboardHook.ViewModel
             {
                 SaveConfiguration(o);
             }));
+            PlayerIntroSoundCommand = new RelayCommand(o =>
+            {
+                _mediaPlayer.Position = TimeSpan.Zero;
+                _mediaPlayer.Play();
+            });
         }
 
         private void SaveConfiguration(object obj)
@@ -129,35 +163,11 @@ namespace GtaKeyboardHook.ViewModel
             _appConfigProvider.SetValue(AppConfigProperties.HookedKeyCode, _hookedKey);
         }
 
-        private void CheckPixelColorForDifference()
-        {
-            while (true)
-            {
-                var color = Win32ApiHelper.GetPixelColor(_coordinateX, _coordinateY);
-
-                if (!(color.R == _hookedColor.R && color.G == _hookedColor.G && color.B == _hookedColor.B))
-                    continue;
-                
-                Task.Run(() =>
-                {
-                    Logger.Information("Sending KeyPressedEvent for key {key} after {callback} ms", "S", _callbackDuration);
-                    Thread.Sleep(_callbackDuration);
-                    
-                    Win32ApiHelper.SendKeyPressedEvent(Keys.S);
-                });
-                
-                break;
-            }
-        }
-
         private void KeyDownHandler(object sender, KeyEventArgs e)
         {
-            if (_backgroundTask.Status == TaskStatus.Running) return;
-            
-            _backgroundTask = _backgroundTask.Status == TaskStatus.RanToCompletion
-                ? new Task(CheckPixelColorForDifference)
-                : _backgroundTask;
-            _backgroundTask.Start();
+            _checkPixelForDifferenceTask.Execute(
+                new CheckPixelDifferenceParameter {Pixel = new Point(_coordinateX, _coordinateY), HookedColor = _hookedColor},
+                new CancellationToken());
         }
 
         private void KeyUpHandler(object sender, KeyEventArgs e)

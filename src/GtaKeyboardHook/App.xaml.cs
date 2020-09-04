@@ -1,24 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Configuration.Json;
+using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Application = System.Windows.Application;
 using Serilog;
 using GtaKeyboardHook.Infrastructure;
+using GtaKeyboardHook.Infrastructure.BackgroundWorkers;
+using GtaKeyboardHook.Infrastructure.BackgroundWorkers.TaskFactories;
 using GtaKeyboardHook.Model;
+using GtaKeyboardHook.Model.Parameters;
 using GtaKeyboardHook.ViewModel;
-using Vanara.PInvoke;
-using ConfigurationBuilder = Microsoft.Extensions.Configuration.ConfigurationBuilder;
+using TinyMessenger;
 using IConfigurationProvider = GtaKeyboardHook.Model.IConfigurationProvider;
 
 namespace GtaKeyboardHook
@@ -43,7 +38,19 @@ namespace GtaKeyboardHook
         {
             SetupConfigurationProvider(services);
             SetupLogger(services);
+            SetupInfrastructure(services);
             SetupMainWindow(services);
+        }
+
+        private void SetupInfrastructure(IServiceCollection services)
+        {
+            services.AddSingleton<ITinyMessengerHub, TinyMessengerHub>();
+
+            services.AddScoped<BaseBackgoundWorker<SendKeyEventParameter>>(provider =>
+                    new SendKeyEventBackgroundWorker(new MultipleTaskFactory()))
+                .AddScoped<BaseBackgoundWorker<CheckPixelDifferenceParameter>>(provider =>
+                    new PixelTrackerBackgroundWorker(new SingleTaskFactory(),
+                        provider.GetRequiredService<ITinyMessengerHub>()));
         }
 
         private void SetupConfigurationProvider(IServiceCollection services)
@@ -51,8 +58,14 @@ namespace GtaKeyboardHook
             var assemblyLocation = Assembly.GetExecutingAssembly().Location;
             var configuration = ConfigurationManager.OpenExeConfiguration(assemblyLocation);
 
+            var mediaPlayer = new MediaPlayer();
+            mediaPlayer.Open(new Uri(Directory.GetCurrentDirectory() + "\\Resources\\intro.mp3"));
+            mediaPlayer.Volume = 100;
+            
             services.AddSingleton(configuration)
-                .AddSingleton<IConfigurationProvider, AppConfigProvider>();
+                .AddSingleton<IConfigurationProvider, AppConfigProvider>()
+                .AddSingleton(typeof(KeyboardHook))
+                .AddSingleton(mediaPlayer);
         }
 
         private void SetupMainWindow(IServiceCollection services)
