@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Serilog;
 using GtaKeyboardHook.Model;
+using Serilog;
 using Vanara.PInvoke;
 
 namespace GtaKeyboardHook.Infrastructure
@@ -10,10 +10,6 @@ namespace GtaKeyboardHook.Infrastructure
     public class KeyboardHook
     {
         private static readonly ILogger Logger = Log.ForContext<KeyboardHook>();
-
-        public Keys HookedKey { get; set; } = Keys.E;
-        public event KeyEventHandler KeyDownEvent;
-        public event KeyEventHandler KeyUpEvent;
 
         private User32.SafeHHOOK _hook;
         private User32.HookProc _hookProc;
@@ -23,6 +19,10 @@ namespace GtaKeyboardHook.Infrastructure
             EnableHook();
         }
 
+        public Keys HookedKey { get; set; } = Keys.E;
+        public event KeyEventHandler KeyDownEvent;
+        public event KeyEventHandler KeyUpEvent;
+
         private IntPtr HookProc(int code, IntPtr wParam, IntPtr lParam)
         {
             var keyboardInput = Marshal.PtrToStructure<User32.KEYBDINPUT>(lParam);
@@ -30,7 +30,7 @@ namespace GtaKeyboardHook.Infrastructure
 
             if (code >= 0 && HookedKey == pressedKey)
             {
-                var keyEvent = (Int32) wParam;
+                var keyEvent = (int) wParam;
 
                 Logger.Information("Key {pressedKey} was found", pressedKey);
 
@@ -51,7 +51,7 @@ namespace GtaKeyboardHook.Infrastructure
         private void EnableHook()
         {
             var hInstance = Kernel32.LoadLibrary("User32");
-            _hookProc = new User32.HookProc(HookProc);
+            _hookProc = HookProc;
 
             _hook = User32.SetWindowsHookEx(User32.HookType.WH_KEYBOARD_LL, _hookProc, hInstance, 0);
         }

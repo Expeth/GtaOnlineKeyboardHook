@@ -10,7 +10,7 @@ namespace GtaKeyboardHook.Infrastructure.Configuration
     public class JsonConfigurationProvider : IProfileConfigurationProvider
     {
         private static readonly ILogger Logger = Log.ForContext<JsonConfigurationProvider>();
-      
+
         private readonly string _filePath;
         private ProfileConfiguration _configuration;
 
@@ -18,7 +18,7 @@ namespace GtaKeyboardHook.Infrastructure.Configuration
         {
             _filePath = filePath;
         }
-      
+
         public async Task LoadFromSourceAsync()
         {
             try
@@ -58,7 +58,7 @@ namespace GtaKeyboardHook.Infrastructure.Configuration
                 using var configFile = new StreamWriter(new FileStream(_filePath, FileMode.Truncate));
 
                 var jsonString = JsonConvert.SerializeObject(_configuration);
-            
+
                 return configFile.WriteLineAsync(jsonString);
             }
             catch (Exception e)

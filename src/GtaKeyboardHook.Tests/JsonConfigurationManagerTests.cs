@@ -8,13 +8,13 @@ namespace GtaKeyboardHook.Tests
     [TestFixture]
     public class JsonConfigurationManagerTests
     {
-        private string _validFilePath;
-        
+        private readonly string _validFilePath;
+
         public JsonConfigurationManagerTests()
-        {  
+        {
             _validFilePath = $"{AppDomain.CurrentDomain.BaseDirectory}\\TestData\\validconfig.json";
         }
-        
+
         [Test]
         public void ConfigLoadSuccess()
         {
@@ -26,7 +26,7 @@ namespace GtaKeyboardHook.Tests
 
             Assert.AreEqual(expected, actual);
         }
-        
+
         [Test]
         public void ConfigSaveSuccess()
         {
@@ -45,9 +45,9 @@ namespace GtaKeyboardHook.Tests
             manager.Save();
             manager.LoadFromSource();
             actual = manager.GetConfig();
-            
+
             Assert.AreEqual(expected, actual);
-            
+
             actual.CallbackDuration = TestDataHolder.ProfileConfigExample1.CallbackDuration;
             actual.HookedCoordinateX = TestDataHolder.ProfileConfigExample1.HookedCoordinateX;
             actual.HookedCoordinateY = TestDataHolder.ProfileConfigExample1.HookedCoordinateY;

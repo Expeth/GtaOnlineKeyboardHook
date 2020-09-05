@@ -12,7 +12,7 @@ namespace GtaKeyboardHook.Infrastructure.BackgroundWorkers
         protected static readonly ILogger Logger = Log.ForContext<BaseBackgoundWorker<TParameter>>();
 
         private Task _backgroundTask;
-        private ITaskFactory _taskFactory;
+        private readonly ITaskFactory _taskFactory;
 
         protected BaseBackgoundWorker(ITaskFactory factory)
         {

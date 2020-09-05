@@ -39,7 +39,7 @@ namespace GtaKeyboardHook.Infrastructure.Helpers
                 ? User32.KEYEVENTF.KEYEVENTF_KEYUP | User32.KEYEVENTF.KEYEVENTF_SCANCODE
                 : 0 | User32.KEYEVENTF.KEYEVENTF_SCANCODE;
             input.ki.dwExtraInfo = UIntPtr.Zero;
-            
+
             //TODO: find a way to get a scancode of any key 
             input.ki.wScan = 0x1F;
             input.ki.wVk = 0;

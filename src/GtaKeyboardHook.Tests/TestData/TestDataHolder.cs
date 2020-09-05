@@ -4,7 +4,7 @@ namespace GtaKeyboardHook.Tests.TestData
 {
     public static class TestDataHolder
     {
-        public static ProfileConfiguration ProfileConfigExample1 = new ProfileConfiguration()
+        public static ProfileConfiguration ProfileConfigExample1 = new ProfileConfiguration
         {
             CallbackDuration = 4500,
             HookedCoordinateX = 150,
@@ -12,8 +12,8 @@ namespace GtaKeyboardHook.Tests.TestData
             HookedKeyCode = "E",
             HookedRgbColorCode = "130,130,130"
         };
-        
-        public static ProfileConfiguration ProfileConfigExample2 = new ProfileConfiguration()
+
+        public static ProfileConfiguration ProfileConfigExample2 = new ProfileConfiguration
         {
             CallbackDuration = 1200,
             HookedCoordinateX = 320,
