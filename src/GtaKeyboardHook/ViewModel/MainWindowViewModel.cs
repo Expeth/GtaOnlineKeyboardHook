@@ -74,6 +74,9 @@ namespace GtaKeyboardHook.ViewModel
         {
             AvailableKeys = Enum.GetNames(typeof(Keys)).ToList();
 
+            // to setup hooked key for keyboard hook
+            HookedKey = _appConfigProvider.GetConfig().HookedKeyCode;
+
             try
             {
                 _hookedColor = ColorHelper.FromRgb(_appConfigProvider.GetConfig().HookedRgbColorCode);

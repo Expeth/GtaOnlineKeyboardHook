@@ -216,6 +216,7 @@
     <Compile Include="Infrastructure\Configuration\IProfileConfigurationProvider.cs" />
     <Compile Include="Infrastructure\Configuration\JsonConfigurationProvider.cs" />
     <Compile Include="Infrastructure\Helpers\ColorHelper.cs" />
+    <Compile Include="Infrastructure\Helpers\KeysHelper.cs" />
     <Compile Include="Infrastructure\Helpers\Win32ApiHelper.cs" />
     <Compile Include="Infrastructure\RelayCommand.cs" />
     <Compile Include="Model\Configuration\ProfileConfiguration.cs" />
