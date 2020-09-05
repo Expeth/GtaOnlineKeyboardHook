@@ -13,8 +13,3 @@ GTA about pressing 'S' button.
 
 Of course, I know, that the interface isn't really friendly, but mostly, this application was created just to get some experience and knowledge
 with the WinApi32 library.
-
-#### TODO List:
-
-- [x] Create a mechanism to work with background jobs
-- [ ] Rewrite the way to work with configurations. A config file should be stored in the JSON format and located in the Documents folder
