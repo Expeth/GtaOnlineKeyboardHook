@@ -1,5 +1,5 @@
 ﻿using System;
-using GtaKeyboardHook.Model;
+using GtaKeyboardHook.Infrastructure.Configuration;
 using GtaKeyboardHook.Tests.TestData;
 using NUnit.Framework;
 
@@ -18,7 +18,7 @@ namespace GtaKeyboardHook.Tests
         [Test]
         public void ConfigLoadSuccess()
         {
-            var manager = new JsonConfigurationManager(_validFilePath);
+            var manager = new JsonConfigurationProvider(_validFilePath);
             manager.LoadFromSource();
 
             var actual = manager.GetConfig();
@@ -30,7 +30,7 @@ namespace GtaKeyboardHook.Tests
         [Test]
         public void ConfigSaveSuccess()
         {
-            var manager = new JsonConfigurationManager(_validFilePath);
+            var manager = new JsonConfigurationProvider(_validFilePath);
             manager.LoadFromSource();
 
             var actual = manager.GetConfig();

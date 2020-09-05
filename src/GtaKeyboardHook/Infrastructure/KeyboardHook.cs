@@ -10,12 +10,11 @@ namespace GtaKeyboardHook.Infrastructure
     public class KeyboardHook
     {
         private static readonly ILogger Logger = Log.ForContext<KeyboardHook>();
-        
-        public Keys HookedKey { get; set; } = Keys.E;
 
+        public Keys HookedKey { get; set; } = Keys.E;
         public event KeyEventHandler KeyDownEvent;
         public event KeyEventHandler KeyUpEvent;
-		
+
         private User32.SafeHHOOK _hook;
         private User32.HookProc _hookProc;
 
@@ -28,23 +27,22 @@ namespace GtaKeyboardHook.Infrastructure
         {
             var keyboardInput = Marshal.PtrToStructure<User32.KEYBDINPUT>(lParam);
             var pressedKey = (Keys) keyboardInput.wVk;
-         
+
             if (code >= 0 && HookedKey == pressedKey)
             {
                 var keyEvent = (Int32) wParam;
-                
+
                 Logger.Information("Key {pressedKey} was found", pressedKey);
 
                 var keyEventArgs = new KeyEventArgs(pressedKey);
                 // key down
-                if (keyEvent == Const.WM_KEYDOWN || keyEvent == Const.WM_SYSKEYDOWN)
+                if (keyEvent == Constants.WM_KEYDOWN || keyEvent == Constants.WM_SYSKEYDOWN)
                     KeyDownEvent?.Invoke(this, keyEventArgs);
                 // key up
-                else if (keyEvent == Const.WM_KEYUP || keyEvent == Const.WM_SYSKEYUP)
+                else if (keyEvent == Constants.WM_KEYUP || keyEvent == Constants.WM_SYSKEYUP)
                     KeyUpEvent?.Invoke(this, keyEventArgs);
 
-                if (keyEventArgs.Handled)
-                    return new IntPtr(1);
+                if (keyEventArgs.Handled) return new IntPtr(1);
             }
 
             return User32.CallNextHookEx(_hook, code, wParam, lParam);

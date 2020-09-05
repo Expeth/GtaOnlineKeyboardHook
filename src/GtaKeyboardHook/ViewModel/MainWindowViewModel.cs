@@ -12,6 +12,8 @@ using System.Windows.Media;
 using Serilog;
 using GtaKeyboardHook.Infrastructure;
 using GtaKeyboardHook.Infrastructure.BackgroundWorkers;
+using GtaKeyboardHook.Infrastructure.Configuration;
+using GtaKeyboardHook.Infrastructure.Helpers;
 using GtaKeyboardHook.Model;
 using GtaKeyboardHook.Model.Messages;
 using GtaKeyboardHook.Model.Parameters;
@@ -26,21 +28,25 @@ namespace GtaKeyboardHook.ViewModel
     {
         private static readonly ILogger Logger = Log.ForContext<MainWindowViewModel>();
 
+        #region PrivateFileds
         private BaseBackgoundWorker<CheckPixelDifferenceParameter> _checkPixelForDifferenceTask;
         private BaseBackgoundWorker<SendKeyEventParameter> _sendKeyEventTask;
-        private ITinyMessengerHub _messageBus;
-        private MediaPlayer _mediaPlayer;
-        
-        private IProfileConfigurationManager _appConfigProvider;
+        private IProfileConfigurationProvider _appConfigProvider;
         private KeyEventHandler _keyDownHandler;
         private KeyEventHandler _keyUpHandler;
+        private ITinyMessengerHub _messageBus;
         private KeyboardHook _keyboardHook;
+        private MediaPlayer _mediaPlayer;
+        private IEnumerable<string> _keys;
         private Color _hookedColor;
+        #endregion
         
+        #region Commands
         public ICommand SaveConfigurationCommand { get; set; }
         public ICommand PlayerIntroSoundCommand { get; set; }
+        #endregion
         
-        private IEnumerable<string> _keys; 
+        #region PublicViewProperties
         public IEnumerable<string> AvailableKeys
         {
             get => _keys;
@@ -50,19 +56,16 @@ namespace GtaKeyboardHook.ViewModel
                 Notify();
             }
         }
-
         public int CoordinateX
         {
             get => _appConfigProvider.GetConfig().HookedCoordinateX;
             set => _appConfigProvider.GetConfig().HookedCoordinateX = value;
         }
-
         public int CoordinateY
         {
             get => _appConfigProvider.GetConfig().HookedCoordinateY;
             set => _appConfigProvider.GetConfig().HookedCoordinateY = value;
         }
-
         public string HookedKey
         {
             get => _appConfigProvider.GetConfig().HookedKeyCode;
@@ -73,37 +76,41 @@ namespace GtaKeyboardHook.ViewModel
                 Notify();
             }
         }
-
         public int CallbackDuration
         {
             get => _appConfigProvider.GetConfig().CallbackDuration;
             set => _appConfigProvider.GetConfig().CallbackDuration = value;
         }
+        #endregion
 
         public MainWindowViewModel(
-            IProfileConfigurationManager appConfigProvider,
             BaseBackgoundWorker<CheckPixelDifferenceParameter> checkPixelForDifferenceTask,
             BaseBackgoundWorker<SendKeyEventParameter> sendKeyEventTask,
+            IProfileConfigurationProvider appConfigProvider,
             ITinyMessengerHub messageBus,
             KeyboardHook keyboardHook,
             MediaPlayer mediaPlayer)
         {
-            _appConfigProvider = appConfigProvider;
             _checkPixelForDifferenceTask = checkPixelForDifferenceTask;
+            _appConfigProvider = appConfigProvider;
             _sendKeyEventTask = sendKeyEventTask;
-            _messageBus = messageBus;
             _keyboardHook = keyboardHook;
             _mediaPlayer = mediaPlayer;
+            _messageBus = messageBus;
             
             InitializeMessageBusHandlers();
+            InitializeKeyEventHandlers();
             InitializeCommands();
             ReadConfiguration();
+        }
 
-            _keyUpHandler = new KeyEventHandler(KeyUpHandler);
+        private void InitializeKeyEventHandlers()
+        {
             _keyDownHandler = new KeyEventHandler(KeyDownHandler);
-            
-            _keyboardHook.KeyUpEvent += _keyUpHandler;
+            _keyUpHandler = new KeyEventHandler(KeyUpHandler);
+
             _keyboardHook.KeyDownEvent += _keyDownHandler;
+            _keyboardHook.KeyUpEvent += _keyUpHandler;
         }
 
         private void InitializeMessageBusHandlers()
@@ -122,14 +129,11 @@ namespace GtaKeyboardHook.ViewModel
 
             try
             {
-                var rgbCode = _appConfigProvider.GetConfig().HookedRgbColorCode;
-                var codes = rgbCode.Split(',').Select(x => Int32.Parse(x)).ToArray();
-
-                _hookedColor = Color.FromArgb(codes[0], codes[1], codes[2]);
+                _hookedColor = ColorHelper.FromRgb(_appConfigProvider.GetConfig().HookedRgbColorCode);
             }
             catch (Exception e)
             {
-                _hookedColor = Const.GtaButtonColor;
+                _hookedColor = Constants.GtaButtonColor;
                 Logger.Error(e, "Couldn't parse rgb code");
             }
         }

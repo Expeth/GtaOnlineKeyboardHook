@@ -1,4 +1,4 @@
-﻿using GtaKeyboardHook.Model;
+﻿using GtaKeyboardHook.Model.Configuration;
 
 namespace GtaKeyboardHook.Tests.TestData
 {

@@ -10,7 +10,7 @@ using Serilog;
 using GtaKeyboardHook.Infrastructure;
 using GtaKeyboardHook.Infrastructure.BackgroundWorkers;
 using GtaKeyboardHook.Infrastructure.BackgroundWorkers.TaskFactories;
-using GtaKeyboardHook.Model;
+using GtaKeyboardHook.Infrastructure.Configuration;
 using GtaKeyboardHook.Model.Parameters;
 using GtaKeyboardHook.ViewModel;
 using TinyMessenger;
@@ -54,20 +54,16 @@ namespace GtaKeyboardHook
 
         private void SetupConfigurationProvider(IServiceCollection services)
         {
-            var assemblyLocation = Assembly.GetExecutingAssembly().Location;
-            var configuration = ConfigurationManager.OpenExeConfiguration(assemblyLocation);
-
             var mediaPlayer = new MediaPlayer();
             mediaPlayer.Open(new Uri(Directory.GetCurrentDirectory() + "\\Resources\\intro.mp3"));
             mediaPlayer.Volume = 100;
 
-            //todo: to use Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            //TODO: to use Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
             var documentsFolder = AppDomain.CurrentDomain.BaseDirectory;
-            var configManager = new JsonConfigurationManager(documentsFolder + "configuration.json");
+            var configManager = new JsonConfigurationProvider(documentsFolder + "configuration.json");
             configManager.LoadFromSource();
             
-            services.AddSingleton(configuration)
-                .AddSingleton<IProfileConfigurationManager>(configManager)
+            services.AddSingleton<IProfileConfigurationProvider>(configManager)
                 .AddSingleton(typeof(KeyboardHook))
                 .AddSingleton(mediaPlayer);
         }

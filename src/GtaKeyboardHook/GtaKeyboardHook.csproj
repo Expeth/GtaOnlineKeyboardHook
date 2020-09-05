@@ -205,7 +205,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Infrastructure\AppConfigProvider.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\BaseBackgroundWorker.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\IBackgroundWorker.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\PixelTrackerBackgroundWorker.cs" />
@@ -213,8 +212,12 @@
     <Compile Include="Infrastructure\BackgroundWorkers\TaskFactories\ITaskFactory.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\TaskFactories\MultipleTaskFactory.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\TaskFactories\SingleTaskFactory.cs" />
+    <Compile Include="Infrastructure\Configuration\IProfileConfigurationProvider.cs" />
+    <Compile Include="Infrastructure\Configuration\JsonConfigurationProvider.cs" />
+    <Compile Include="Infrastructure\Helpers\ColorHelper.cs" />
+    <Compile Include="Infrastructure\Helpers\Win32ApiHelper.cs" />
     <Compile Include="Infrastructure\RelayCommand.cs" />
-    <Compile Include="Infrastructure\Win32ApiHelper.cs" />
+    <Compile Include="Model\Configuration\ProfileConfiguration.cs" />
     <Compile Include="Model\Messages\PixelColorChangedMessage.cs" />
     <Compile Include="Model\Parameters\CheckPixelDifferenceParameter.cs" />
     <Compile Include="Model\Parameters\SendKeyEventParameter.cs" />
@@ -229,14 +232,13 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Infrastructure\KeyboardHook.cs" />
-    <Compile Include="Infrastructure\Sender.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\Const.cs" />
+    <Compile Include="Model\Constants.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
