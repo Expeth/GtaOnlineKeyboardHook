@@ -30,6 +30,7 @@ namespace GtaKeyboardHook.ViewModel
 
         #region PrivateFileds
         private BaseBackgoundWorker<CheckPixelDifferenceParameter> _checkPixelForDifferenceTask;
+        private BaseBackgoundWorker<IProfileConfigurationProvider> _saveConfigurationTask;
         private BaseBackgoundWorker<SendKeyEventParameter> _sendKeyEventTask;
         private IProfileConfigurationProvider _appConfigProvider;
         private KeyEventHandler _keyDownHandler;
@@ -85,6 +86,7 @@ namespace GtaKeyboardHook.ViewModel
 
         public MainWindowViewModel(
             BaseBackgoundWorker<CheckPixelDifferenceParameter> checkPixelForDifferenceTask,
+            BaseBackgoundWorker<IProfileConfigurationProvider> saveConfigurationTask,
             BaseBackgoundWorker<SendKeyEventParameter> sendKeyEventTask,
             IProfileConfigurationProvider appConfigProvider,
             ITinyMessengerHub messageBus,
@@ -92,6 +94,7 @@ namespace GtaKeyboardHook.ViewModel
             MediaPlayer mediaPlayer)
         {
             _checkPixelForDifferenceTask = checkPixelForDifferenceTask;
+            _saveConfigurationTask = saveConfigurationTask;
             _appConfigProvider = appConfigProvider;
             _sendKeyEventTask = sendKeyEventTask;
             _keyboardHook = keyboardHook;
@@ -140,20 +143,15 @@ namespace GtaKeyboardHook.ViewModel
 
         private void InitializeCommands()
         {
-            SaveConfigurationCommand = new RelayCommand(o => Task.Run(() =>
+            SaveConfigurationCommand = new RelayCommand(o =>
             {
-                SaveConfiguration(o);
-            }));
+                _saveConfigurationTask.Execute(_appConfigProvider, new CancellationToken());
+            });
             PlayerIntroSoundCommand = new RelayCommand(o =>
             {
                 _mediaPlayer.Position = TimeSpan.Zero;
                 _mediaPlayer.Play();
             });
-        }
-
-        private void SaveConfiguration(object obj)
-        {
-            _appConfigProvider.SaveAsync();
         }
 
         private void KeyDownHandler(object sender, KeyEventArgs e)

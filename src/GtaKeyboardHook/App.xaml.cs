@@ -47,6 +47,10 @@ namespace GtaKeyboardHook
 
             services.AddScoped<BaseBackgoundWorker<SendKeyEventParameter>>(provider =>
                     new SendKeyEventBackgroundWorker(new MultipleTaskFactory()))
+                
+                .AddScoped<BaseBackgoundWorker<IProfileConfigurationProvider>>(provider =>
+                    new ConfigSaverBackgroundWorker(new MultipleTaskFactory()))
+                
                 .AddScoped<BaseBackgoundWorker<CheckPixelDifferenceParameter>>(provider =>
                     new PixelTrackerBackgroundWorker(new SingleTaskFactory(),
                         provider.GetRequiredService<ITinyMessengerHub>()));

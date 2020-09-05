@@ -206,6 +206,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Infrastructure\BackgroundWorkers\BaseBackgroundWorker.cs" />
+    <Compile Include="Infrastructure\BackgroundWorkers\ConfigSaverBackgroundWorker.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\IBackgroundWorker.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\PixelTrackerBackgroundWorker.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\SendKeyEventBackgroundWorker.cs" />
