@@ -2,7 +2,7 @@
 
 namespace GtaKeyboardHook.Model
 {
-    public class Const
+    public static class Constants
     {
         public static readonly Color GtaButtonColor = Color.FromArgb(229, 229, 229);
 

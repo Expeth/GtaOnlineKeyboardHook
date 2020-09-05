@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using GtaKeyboardHook.Infrastructure.BackgroundWorkers.TaskFactories;
+using GtaKeyboardHook.Infrastructure.Helpers;
 using GtaKeyboardHook.Model.Parameters;
 
 namespace GtaKeyboardHook.Infrastructure.BackgroundWorkers
