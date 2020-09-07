@@ -23,7 +23,7 @@ using KeyEventHandler = System.Windows.Forms.KeyEventHandler;
 
 namespace GtaKeyboardHook.ViewModel
 {
-    public class MainWindowViewModel
+    public class MainWindowViewModel : INotifyPropertyChanged
     {
         private static readonly ILogger Logger = Log.ForContext<MainWindowViewModel>();
 
@@ -32,6 +32,7 @@ namespace GtaKeyboardHook.ViewModel
             BaseBackgoundWorker<IProfileConfigurationProvider> saveConfigurationTask,
             BaseBackgoundWorker<SendKeyEventParameter> sendKeyEventTask,
             IProfileConfigurationProvider appConfigProvider,
+            PreviewImageHolder previewWindow,
             ITinyMessengerHub messageBus,
             KeyboardHook keyboardHook,
             MediaPlayer mediaPlayer)
@@ -40,6 +41,7 @@ namespace GtaKeyboardHook.ViewModel
             _saveConfigurationTask = saveConfigurationTask;
             _appConfigProvider = appConfigProvider;
             _sendKeyEventTask = sendKeyEventTask;
+            PreviewWindow = previewWindow;
             _keyboardHook = keyboardHook;
             _mediaPlayer = mediaPlayer;
             _messageBus = messageBus;
@@ -74,9 +76,13 @@ namespace GtaKeyboardHook.ViewModel
         {
             AvailableKeys = Enum.GetNames(typeof(Keys)).ToList();
 
-            // to setup hooked key for keyboard hook
+            // to setup a key for the keyboard hook
             HookedKey = _appConfigProvider.GetConfig().HookedKeyCode;
-
+            
+            // initial setup of preview window
+            PreviewWindow.Execute(new Point(CoordinateX, CoordinateY),
+                CancellationToken.None);
+            
             try
             {
                 _hookedColor = ColorHelper.FromRgb(_appConfigProvider.GetConfig().HookedRgbColorCode);
@@ -139,6 +145,8 @@ namespace GtaKeyboardHook.ViewModel
 
         #region PublicViewProperties
 
+        public PreviewImageHolder PreviewWindow { get; set; }
+
         public IEnumerable<string> AvailableKeys
         {
             get => _keys;
@@ -152,13 +160,21 @@ namespace GtaKeyboardHook.ViewModel
         public int CoordinateX
         {
             get => _appConfigProvider.GetConfig().HookedCoordinateX;
-            set => _appConfigProvider.GetConfig().HookedCoordinateX = value;
+            set
+            {
+                _appConfigProvider.GetConfig().HookedCoordinateX = value;
+                PreviewWindow.Execute(new Point(CoordinateX, CoordinateY), CancellationToken.None);
+            }
         }
 
         public int CoordinateY
         {
             get => _appConfigProvider.GetConfig().HookedCoordinateY;
-            set => _appConfigProvider.GetConfig().HookedCoordinateY = value;
+            set
+            {
+                _appConfigProvider.GetConfig().HookedCoordinateY = value;
+                PreviewWindow.Execute(new Point(CoordinateX, CoordinateY), CancellationToken.None);
+            }
         }
 
         public string HookedKey

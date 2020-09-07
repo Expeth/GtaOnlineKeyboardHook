@@ -7,7 +7,7 @@ using Serilog.Context;
 
 namespace GtaKeyboardHook.Infrastructure.BackgroundWorkers
 {
-    public abstract class BaseBackgoundWorker<TParameter> : IBackgroundWorker<TParameter>
+    public abstract class BaseBackgoundWorker<TParameter> : IExecutable<TParameter>
     {
         protected static readonly ILogger Logger = Log.ForContext<BaseBackgoundWorker<TParameter>>();
 

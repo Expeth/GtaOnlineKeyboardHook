@@ -8,8 +8,8 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
         mc:Ignorable="d"
-        Icon="https://i.ibb.co/CJ58Bdk/logo.png"
-        Title="KeyHub" Height="800" Width="600">
+        Icon="pack://application:,,,/Resources/logo.png"
+        Title="KeyHub" Height="600" Width="700">
 
     <Window.Resources>
         <Style TargetType="{x:Type Button}" x:Key="ImageButtonStyle">
@@ -24,22 +24,27 @@
     </Window.Resources>
 
     <Grid>
-        <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        
+        <Grid Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
                 <RowDefinition Height="2*" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="7*" />
+                <RowDefinition Height="2*" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
                 <Button Style="{StaticResource ImageButtonStyle}" Command="{Binding PlayerIntroSoundCommand}">
-                    <Image Width="250" Height="80" Source="https://i.ibb.co/CJ58Bdk/logo.png" />
+                    <Image Width="250" Height="80" Source="pack://application:,,,/Resources/logo.png" />
                 </Button>
             </Grid>
 
-            <Grid Grid.Row="1" Margin="30" HorizontalAlignment="Center">
+            <Grid Grid.Row="1" HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
+                    <RowDefinition />
                     <RowDefinition />
                     <RowDefinition />
                     <RowDefinition />
@@ -62,16 +67,31 @@
                     <TextBox Height="25" Width="200" FontSize="15" TextAlignment="Center"
                              Text="{Binding Path=CoordinateY, UpdateSourceTrigger=PropertyChanged}" />
                 </Grid>
+                
+                <Grid Grid.Row="3" HorizontalAlignment="Center">
+                    <Label FontSize="15" HorizontalContentAlignment="Center" Content="Callback duration (ms):" />
+                    <TextBox Height="25" Width="200" FontSize="15" TextAlignment="Center"
+                             Text="{Binding Path=CallbackDuration, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
             </Grid>
 
             <Grid Grid.Row="2" HorizontalAlignment="Center">
-                <Label FontSize="15" HorizontalContentAlignment="Center" Content="Callback duration (ms):" />
-                <TextBox Height="25" Width="200" FontSize="15" TextAlignment="Center"
-                         Text="{Binding Path=CallbackDuration, UpdateSourceTrigger=PropertyChanged}" />
-            </Grid>
-
-            <Grid Grid.Row="3" HorizontalAlignment="Center">
                 <Button Content="Save Configuration" Command="{Binding SaveConfigurationCommand}" />
+            </Grid>
+        </Grid>
+        
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            
+            <Border Grid.Row="0" Width="200" Height="200" BorderThickness="2" BorderBrush="Orange" DataContext="{Binding PreviewWindow}">
+                <Image Stretch="Fill" Source="{Binding Instance}"></Image>
+            </Border>
+            
+            <Grid Grid.Row="1">
+                <!-- Other buttons -->
             </Grid>
         </Grid>
     </Grid>

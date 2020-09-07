@@ -1,30 +1,80 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 using Vanara.PInvoke;
 
 namespace GtaKeyboardHook.Infrastructure.Helpers
 {
     public static class Win32ApiHelper
     {
-        public static Color GetPixelColor(int x, int y)
+        public static Color GetPixelColorFromHdc(HDC windowHdc, int x, int y)
+        {
+            // UINT representation of a pixel information
+            uint pixel = Gdi32.GetPixel(windowHdc, x, y);
+
+            // get color
+            try
+            {
+                return ColorHelper.FromPixel(pixel);
+            }
+            catch (Exception e)
+            {
+                return Color.White;
+            }
+        }
+        
+        public static Color GetPixelColorFromDesktop(int x, int y)
         {
             // get HWND of the Desktop
             var window = User32.GetDesktopWindow();
-
+            
             // get HDC from HWND
             var hdc = User32.GetDC(window);
-            // UINT representation of a pixel information
-            uint pixel = Gdi32.GetPixel(hdc, x, y);
 
+            var pixelColor = GetPixelColorFromHdc(hdc, x, y);
+            
             // release HDC
             User32.ReleaseDC(window, hdc);
 
-            // get color
-            var color = ColorHelper.FromPixel(pixel);
+            return pixelColor;
+        }
 
-            return color;
+        public static BitmapSource ConvertToBitmapSource(Bitmap bitmap)
+        {
+            IntPtr hBitmap = bitmap.GetHbitmap();
+            BitmapSource source;
+            
+            try 
+            {
+                source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            }
+            finally 
+            {
+                Gdi32.DeleteObject(hBitmap);
+            }
+            return source;
+        }
+
+        public static Bitmap GetDesktopScreenshot(int width, int height)
+        {
+            var window = User32.GetDesktopWindow();
+            var hdc = User32.GetDC(window);
+            var memoryDc = Gdi32.CreateCompatibleDC(hdc);
+            HBITMAP hBitmap = Gdi32.CreateCompatibleBitmap(hdc, width, height);
+            HBITMAP hOldBitmap = Gdi32.SelectObject(memoryDc, hBitmap);
+            
+            Gdi32.BitBlt(memoryDc, 0, 0, width, height, hdc, 0, 0, Gdi32.RasterOperationMode.SRCCOPY);
+            hBitmap = Gdi32.SelectObject(memoryDc, hOldBitmap);
+
+            User32.ReleaseDC(window, hdc);
+            Gdi32.DeleteDC(memoryDc);
+            Gdi32.DeleteObject(hOldBitmap);
+            
+            return Image.FromHbitmap(hBitmap.DangerousGetHandle());
         }
 
         public static void SendKeyPressedEvent(Keys code, bool isKeyUp)
