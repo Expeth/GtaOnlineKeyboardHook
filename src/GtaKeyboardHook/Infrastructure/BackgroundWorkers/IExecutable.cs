@@ -2,7 +2,7 @@
 
 namespace GtaKeyboardHook.Infrastructure.BackgroundWorkers
 {
-    public interface IBackgroundWorker<TParameter>
+    public interface IExecutable<TParameter>
     {
         void Execute(TParameter param, CancellationToken token);
     }

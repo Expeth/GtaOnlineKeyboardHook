@@ -64,6 +64,7 @@ namespace GtaKeyboardHook
 
             services.AddSingleton<IProfileConfigurationProvider>(configManager)
                 .AddSingleton(typeof(KeyboardHook))
+                .AddSingleton(typeof(PreviewImageHolder))
                 .AddSingleton(mediaPlayer);
         }
 

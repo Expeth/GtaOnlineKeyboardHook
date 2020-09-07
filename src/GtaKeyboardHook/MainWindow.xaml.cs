@@ -1,4 +1,6 @@
 ﻿using System.Windows;
+using System.Windows.Media.Imaging;
+using GtaKeyboardHook.Infrastructure.Helpers;
 using GtaKeyboardHook.ViewModel;
 
 namespace GtaKeyboardHook

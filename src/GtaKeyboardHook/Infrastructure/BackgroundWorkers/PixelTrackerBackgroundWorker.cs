@@ -25,7 +25,7 @@ namespace GtaKeyboardHook.Infrastructure.BackgroundWorkers
                 {
                     token.ThrowIfCancellationRequested();
 
-                    var color = Win32ApiHelper.GetPixelColor(param.Pixel.X, param.Pixel.Y);
+                    var color = Win32ApiHelper.GetPixelColorFromDesktop(param.Pixel.X, param.Pixel.Y);
 
                     if (!(color.R == param.HookedColor.R && color.G == param.HookedColor.G &&
                           color.B == param.HookedColor.B))
