@@ -59,6 +59,14 @@ namespace GtaKeyboardHook.Infrastructure.Helpers
             return source;
         }
 
+        public static (int width, int height) GetScreenResolution()
+        {
+            int width = User32.GetSystemMetrics(User32.SystemMetric.SM_CXSCREEN);
+            int height = User32.GetSystemMetrics(User32.SystemMetric.SM_CYSCREEN);
+
+            return (width, height);
+        }
+
         public static Bitmap GetDesktopScreenshot(int width, int height)
         {
             var window = User32.GetDesktopWindow();

@@ -14,8 +14,8 @@ namespace GtaKeyboardHook.Infrastructure
     {
         public void Execute(Point param, CancellationToken token)
         {
-            //TODO: should be compatible with all screen resolutions 
-            var desktopScreenshot = Win32ApiHelper.GetDesktopScreenshot(1920, 1080);
+            var screenResolution = Win32ApiHelper.GetScreenResolution();
+            var desktopScreenshot = Win32ApiHelper.GetDesktopScreenshot(screenResolution.width, screenResolution.height);
             var extendedScreenshot = ExtendBitmap(desktopScreenshot, 70, 70);
             
             //TODO: move width and height to a configuration
