@@ -9,7 +9,7 @@
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
         mc:Ignorable="d"
         Icon="pack://application:,,,/Resources/logo.png"
-        Title="KeyHub" Height="600" Width="700">
+        Title="KeyHub" Height="600" Width="700" MinHeight="600" MinWidth="700">
 
     <Window.Resources>
         <Style TargetType="{x:Type Button}" x:Key="ImageButtonStyle">
@@ -87,7 +87,7 @@
             </Grid.RowDefinitions>
             
             <Border Grid.Row="0" Width="200" Height="200" BorderThickness="2" BorderBrush="Orange" DataContext="{Binding PreviewWindow}">
-                <Image Stretch="Fill" Source="{Binding Instance}"></Image>
+                <Image Stretch="Fill" Source="{Binding Instance, Mode=OneWay}"></Image>
             </Border>
             
             <Grid Grid.Row="1">

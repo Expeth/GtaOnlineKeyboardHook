@@ -209,6 +209,7 @@
     <Compile Include="Infrastructure\BackgroundWorkers\ConfigSaverBackgroundWorker.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\IExecutable.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\PixelTrackerBackgroundWorker.cs" />
+    <Compile Include="Infrastructure\BackgroundWorkers\PreviewUpdateWorker.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\SendKeyEventBackgroundWorker.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\TaskFactories\ITaskFactory.cs" />
     <Compile Include="Infrastructure\BackgroundWorkers\TaskFactories\MultipleTaskFactory.cs" />
