@@ -25,6 +25,7 @@ namespace GtaKeyboardHook.Infrastructure
             var result = CreateAxisLines(croppedBitmap);
             var bitmapSource = Win32ApiHelper.ConvertToBitmapSource(result);
             
+            bitmapSource.Freeze();
             Instance = bitmapSource;
         }
 

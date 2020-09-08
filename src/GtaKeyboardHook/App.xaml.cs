@@ -48,7 +48,9 @@ namespace GtaKeyboardHook
                     new ConfigSaverBackgroundWorker(new MultipleTaskFactory()))
                 .AddScoped<BaseBackgoundWorker<CheckPixelDifferenceParameter>>(provider =>
                     new PixelTrackerBackgroundWorker(new SingleTaskFactory(),
-                        provider.GetRequiredService<ITinyMessengerHub>()));
+                        provider.GetRequiredService<ITinyMessengerHub>()))
+                .AddScoped(provider => new PreviewUpdateWorker(
+                    new SingleTaskFactory(), provider.GetRequiredService<PreviewImageHolder>()));
         }
 
         private void SetupConfigurationProvider(IServiceCollection services)

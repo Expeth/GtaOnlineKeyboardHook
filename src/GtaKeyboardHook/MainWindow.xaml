@@ -87,7 +87,7 @@
             </Grid.RowDefinitions>
             
             <Border Grid.Row="0" Width="200" Height="200" BorderThickness="2" BorderBrush="Orange" DataContext="{Binding PreviewWindow}">
-                <Image Stretch="Fill" Source="{Binding Instance}"></Image>
+                <Image Stretch="Fill" Source="{Binding Instance, Mode=OneWay}"></Image>
             </Border>
             
             <Grid Grid.Row="1">

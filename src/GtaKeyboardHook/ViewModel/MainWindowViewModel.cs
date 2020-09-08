@@ -12,6 +12,7 @@ using GtaKeyboardHook.Infrastructure;
 using GtaKeyboardHook.Infrastructure.BackgroundWorkers;
 using GtaKeyboardHook.Infrastructure.Configuration;
 using GtaKeyboardHook.Infrastructure.Helpers;
+using GtaKeyboardHook.Infrastructure.Interfaces;
 using GtaKeyboardHook.Model;
 using GtaKeyboardHook.Model.Messages;
 using GtaKeyboardHook.Model.Parameters;
@@ -32,7 +33,7 @@ namespace GtaKeyboardHook.ViewModel
             BaseBackgoundWorker<IProfileConfigurationProvider> saveConfigurationTask,
             BaseBackgoundWorker<SendKeyEventParameter> sendKeyEventTask,
             IProfileConfigurationProvider appConfigProvider,
-            PreviewImageHolder previewWindow,
+            PreviewUpdateWorker previewUpdateTask,
             ITinyMessengerHub messageBus,
             KeyboardHook keyboardHook,
             MediaPlayer mediaPlayer)
@@ -41,7 +42,7 @@ namespace GtaKeyboardHook.ViewModel
             _saveConfigurationTask = saveConfigurationTask;
             _appConfigProvider = appConfigProvider;
             _sendKeyEventTask = sendKeyEventTask;
-            PreviewWindow = previewWindow;
+            _previewUpdateTask = previewUpdateTask;
             _keyboardHook = keyboardHook;
             _mediaPlayer = mediaPlayer;
             _messageBus = messageBus;
@@ -80,9 +81,9 @@ namespace GtaKeyboardHook.ViewModel
             HookedKey = _appConfigProvider.GetConfig().HookedKeyCode;
             
             // initial setup of preview window
-            PreviewWindow.Execute(new Point(CoordinateX, CoordinateY),
+            _previewUpdateTask.Execute(() => new Point(CoordinateX, CoordinateY),
                 CancellationToken.None);
-            
+
             try
             {
                 _hookedColor = ColorHelper.FromRgb(_appConfigProvider.GetConfig().HookedRgbColorCode);
@@ -125,6 +126,7 @@ namespace GtaKeyboardHook.ViewModel
         private readonly BaseBackgoundWorker<CheckPixelDifferenceParameter> _checkPixelForDifferenceTask;
         private readonly BaseBackgoundWorker<IProfileConfigurationProvider> _saveConfigurationTask;
         private readonly BaseBackgoundWorker<SendKeyEventParameter> _sendKeyEventTask;
+        private readonly PreviewUpdateWorker _previewUpdateTask;
         private readonly IProfileConfigurationProvider _appConfigProvider;
         private KeyEventHandler _keyDownHandler;
         private KeyEventHandler _keyUpHandler;
@@ -133,7 +135,7 @@ namespace GtaKeyboardHook.ViewModel
         private readonly MediaPlayer _mediaPlayer;
         private IEnumerable<string> _keys;
         private Color _hookedColor;
-
+        
         #endregion
 
         #region Commands
@@ -145,7 +147,10 @@ namespace GtaKeyboardHook.ViewModel
 
         #region PublicViewProperties
 
-        public PreviewImageHolder PreviewWindow { get; set; }
+        public IBitmapHolder PreviewWindow
+        {
+            get => _previewUpdateTask.PreviewWindow;
+        }
 
         public IEnumerable<string> AvailableKeys
         {
@@ -163,7 +168,6 @@ namespace GtaKeyboardHook.ViewModel
             set
             {
                 _appConfigProvider.GetConfig().HookedCoordinateX = value;
-                PreviewWindow.Execute(new Point(CoordinateX, CoordinateY), CancellationToken.None);
             }
         }
 
@@ -173,7 +177,6 @@ namespace GtaKeyboardHook.ViewModel
             set
             {
                 _appConfigProvider.GetConfig().HookedCoordinateY = value;
-                PreviewWindow.Execute(new Point(CoordinateX, CoordinateY), CancellationToken.None);
             }
         }
 
