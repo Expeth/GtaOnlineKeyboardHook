@@ -36,6 +36,7 @@ namespace GtaKeyboardHook.Infrastructure.Configuration
             }
         }
 
+        //TODO: rewrite to use sync methods of StreamReader
         public void LoadFromSource()
         {
             LoadFromSourceAsync().ConfigureAwait(false).GetAwaiter().GetResult();
@@ -46,6 +47,7 @@ namespace GtaKeyboardHook.Infrastructure.Configuration
             return _configuration;
         }
 
+        //TODO: rewrite to use sync methods of StreamReader
         public void Save()
         {
             SaveAsync().ConfigureAwait(false).GetAwaiter().GetResult();
