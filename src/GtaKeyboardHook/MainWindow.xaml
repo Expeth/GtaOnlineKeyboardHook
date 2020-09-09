@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GtaKeyboardHook"
+        xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
@@ -52,7 +53,13 @@
                 <Grid Grid.Row="0">
                     <Label FontSize="15" HorizontalContentAlignment="Center" Content="Hooked Key:" />
                     <ComboBox Height="25" Width="200" HorizontalContentAlignment="Center"
-                              ItemsSource="{Binding AvailableKeys}" SelectedItem="{Binding HookedKey}" />
+                              ItemsSource="{Binding AvailableKeys}" SelectedItem="{Binding HookedKey}" >
+                        <ComboBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel />
+                            </ItemsPanelTemplate>
+                        </ComboBox.ItemsPanel>
+                    </ComboBox>
                 </Grid>
 
                 <Grid Grid.Row="1">
