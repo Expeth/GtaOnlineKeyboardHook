@@ -9,7 +9,7 @@
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
         mc:Ignorable="d"
         Icon="pack://application:,,,/Resources/logo.png"
-        Title="KeyHub" Height="600" Width="700" MinHeight="600" MinWidth="700">
+        Title="KeyHub" Height="500" Width="700" MinHeight="600" MinWidth="700">
 
     <Window.Resources>
         <Style TargetType="{x:Type Button}" x:Key="ImageButtonStyle">
@@ -32,8 +32,7 @@
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="2*" />
-                <RowDefinition Height="7*" />
-                <RowDefinition Height="2*" />
+                <RowDefinition Height="6*" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
@@ -74,10 +73,6 @@
                              Text="{Binding Path=CallbackDuration, UpdateSourceTrigger=PropertyChanged}" />
                 </Grid>
             </Grid>
-
-            <Grid Grid.Row="2" HorizontalAlignment="Center">
-                <Button Content="Save Configuration" Command="{Binding SaveConfigurationCommand}" />
-            </Grid>
         </Grid>
         
         <Grid Grid.Column="1">
@@ -91,7 +86,18 @@
             </Border>
             
             <Grid Grid.Row="1" Width="200" VerticalAlignment="Top">
-                <Button Content="Disable Pixel Hook" Command="{Binding DisableHookCommand}" />
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                
+                <Grid Grid.Row="0">
+                    <Button Content="Disable Pixel Hook" Command="{Binding DisableHookCommand}" />
+                </Grid>
+                
+                <Grid Grid.Row="1">
+                    <Button Margin="0 20 0 0" Content="Save Configuration" Command="{Binding SaveConfigurationCommand}" />
+                </Grid>
             </Grid>
         </Grid>
     </Grid>
