@@ -90,8 +90,8 @@
                 <Image Stretch="Fill" Source="{Binding Instance, Mode=OneWay}"></Image>
             </Border>
             
-            <Grid Grid.Row="1">
-                <!-- Other buttons -->
+            <Grid Grid.Row="1" Width="200" VerticalAlignment="Top">
+                <Button Content="Disable Pixel Hook" Command="{Binding DisableHookCommand}" />
             </Grid>
         </Grid>
     </Grid>

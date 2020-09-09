@@ -17,27 +17,20 @@ namespace GtaKeyboardHook.Infrastructure.BackgroundWorkers
             _messageBus = messageBus;
         }
 
-        protected override async void ExecuteInternal(CheckPixelDifferenceParameter param, CancellationToken token)
+        protected override void ExecuteInternal(CheckPixelDifferenceParameter param, CancellationToken token)
         {
             while (true)
             {
-                try
-                {
-                    token.ThrowIfCancellationRequested();
+                token.ThrowIfCancellationRequested();
 
-                    var color = Win32ApiHelper.GetPixelColorFromDesktop(param.Pixel.X, param.Pixel.Y);
+                var color = Win32ApiHelper.GetPixelColorFromDesktop(param.Pixel.X, param.Pixel.Y);
 
-                    if (!(color.R == param.HookedColor.R && color.G == param.HookedColor.G &&
-                          color.B == param.HookedColor.B))
-                        continue;
+                if (!(color.R == param.HookedColor.R && color.G == param.HookedColor.G &&
+                      color.B == param.HookedColor.B))
+                    continue;
 
-                    _messageBus.Publish(new PixelColorChangedMessage(this));
-                    break;
-                }
-                catch (Exception e)
-                {
-                    Logger.Error(e, "Exception occured while executing action");
-                }
+                _messageBus.Publish(new PixelColorChangedMessage(this));
+                break;
             }
         }
     }

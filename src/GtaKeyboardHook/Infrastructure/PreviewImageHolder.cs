@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -10,23 +11,25 @@ using Point = System.Drawing.Point;
 
 namespace GtaKeyboardHook.Infrastructure
 {
-    public class PreviewImageHolder : IExecutable<Point>, IBitmapHolder, INotifyPropertyChanged
+    public class PreviewImageHolder : IExecutable<(Point pixel, Color axisColor)>, IBitmapHolder, INotifyPropertyChanged
     {
-        public void Execute(Point param, CancellationToken token)
-        {
+        public void Execute((Point pixel, Color axisColor) param, CancellationToken token, Action callback = null)
+        {   
             var screenResolution = Win32ApiHelper.GetScreenResolution();
             var desktopScreenshot = Win32ApiHelper.GetDesktopScreenshot(screenResolution.width, screenResolution.height);
             var extendedScreenshot = ExtendBitmap(desktopScreenshot, 70, 70);
             
             //TODO: move width and height to a configuration
             var croppedBitmap =
-                extendedScreenshot.Clone(new Rectangle(param.X, param.Y, 70, 70), extendedScreenshot.PixelFormat);
+                extendedScreenshot.Clone(new Rectangle(param.pixel.X, param.pixel.Y, 70, 70), extendedScreenshot.PixelFormat);
 
-            var result = CreateAxisLines(croppedBitmap);
+            var result = CreateAxisLines(croppedBitmap, param.axisColor);
             var bitmapSource = Win32ApiHelper.ConvertToBitmapSource(result);
             
             bitmapSource.Freeze();
             Instance = bitmapSource;
+
+            callback?.Invoke();
         }
 
         //TODO: consider to move these methods to a helper
@@ -42,13 +45,13 @@ namespace GtaKeyboardHook.Infrastructure
             return extendedBitmap;
         }
 
-        private Bitmap CreateAxisLines(Bitmap source)
+        private Bitmap CreateAxisLines(Bitmap source, Color color)
         {
             using var graphics = Graphics.FromImage(source);
             
-            //TODO: move width and height to a configuration
-            graphics.DrawLine(Pens.Red, new Point(35, 0), new Point(35, 70));
-            graphics.DrawLine(Pens.Red, new Point(0, 35), new Point(70, 35));
+            var pen = new Pen(color);
+            graphics.DrawLine(pen, new Point(35, 0), new Point(35, 70));
+            graphics.DrawLine(pen, new Point(0, 35), new Point(70, 35));
 
             return source;
         }

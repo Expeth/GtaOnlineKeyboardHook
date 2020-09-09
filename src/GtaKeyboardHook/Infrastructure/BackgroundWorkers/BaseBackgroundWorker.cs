@@ -19,9 +19,13 @@ namespace GtaKeyboardHook.Infrastructure.BackgroundWorkers
             _taskFactory = factory;
         }
 
-        public void Execute(TParameter param, CancellationToken token)
+        public void Execute(TParameter param, CancellationToken token, Action callback = null)
         {
-            _backgroundTask = _taskFactory.GetInstance(() => ExecuteInternal(param, token), token);
+            _backgroundTask = _taskFactory.GetInstance(() =>
+            {
+                ExecuteInternal(param, token);
+                callback?.Invoke();
+            }, token);
 
             using var _ = LogContext.PushProperty("CorrelationID", new Guid());
 

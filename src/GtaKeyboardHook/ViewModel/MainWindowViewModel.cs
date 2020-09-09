@@ -81,7 +81,7 @@ namespace GtaKeyboardHook.ViewModel
             HookedKey = _appConfigProvider.GetConfig().HookedKeyCode;
             
             // initial setup of preview window
-            _previewUpdateTask.Execute(() => new Point(CoordinateX, CoordinateY),
+            _previewUpdateTask.Execute((() => new Point(CoordinateX, CoordinateY), DisableHookCommand.CanExecute),
                 CancellationToken.None);
 
             try
@@ -106,14 +106,26 @@ namespace GtaKeyboardHook.ViewModel
                 _mediaPlayer.Position = TimeSpan.Zero;
                 _mediaPlayer.Play();
             });
+            DisableHookCommand = new RelayCommand(o =>
+            {
+                _pixelHookCancellationTokenSource.Cancel();
+            }, o =>
+            {
+                return !(_pixelHookCancellationTokenSource == null ||
+                       _pixelHookCancellationTokenSource.IsCancellationRequested);
+            });
         }
 
         private void KeyDownHandler(object sender, KeyEventArgs e)
         {
+            if (DisableHookCommand.CanExecute(sender)) return;
+
+            _pixelHookCancellationTokenSource = new CancellationTokenSource();
             _checkPixelForDifferenceTask.Execute(
                 new CheckPixelDifferenceParameter
                     {Pixel = new Point(CoordinateX, CoordinateY), HookedColor = _hookedColor},
-                new CancellationToken());
+                _pixelHookCancellationTokenSource.Token,
+                () => { _pixelHookCancellationTokenSource = null; });
         }
 
         private void KeyUpHandler(object sender, KeyEventArgs e)
@@ -126,22 +138,24 @@ namespace GtaKeyboardHook.ViewModel
         private readonly BaseBackgoundWorker<CheckPixelDifferenceParameter> _checkPixelForDifferenceTask;
         private readonly BaseBackgoundWorker<IProfileConfigurationProvider> _saveConfigurationTask;
         private readonly BaseBackgoundWorker<SendKeyEventParameter> _sendKeyEventTask;
-        private readonly PreviewUpdateWorker _previewUpdateTask;
         private readonly IProfileConfigurationProvider _appConfigProvider;
+        private readonly PreviewUpdateWorker _previewUpdateTask;
         private KeyEventHandler _keyDownHandler;
         private KeyEventHandler _keyUpHandler;
         private readonly ITinyMessengerHub _messageBus;
         private readonly KeyboardHook _keyboardHook;
         private readonly MediaPlayer _mediaPlayer;
+        private CancellationTokenSource _pixelHookCancellationTokenSource;
         private IEnumerable<string> _keys;
         private Color _hookedColor;
-        
+
         #endregion
 
         #region Commands
 
         public ICommand SaveConfigurationCommand { get; set; }
         public ICommand PlayerIntroSoundCommand { get; set; }
+        public ICommand DisableHookCommand { get; set; }
 
         #endregion
 
