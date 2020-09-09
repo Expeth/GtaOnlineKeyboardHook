@@ -124,7 +124,8 @@ namespace GtaKeyboardHook.ViewModel
             _checkPixelForDifferenceTask.Execute(
                 new CheckPixelDifferenceParameter
                     {Pixel = new Point(CoordinateX, CoordinateY), HookedColor = _hookedColor},
-                _pixelHookCancellationTokenSource.Token);
+                _pixelHookCancellationTokenSource.Token,
+                () => { _pixelHookCancellationTokenSource = null; });
         }
 
         private void KeyUpHandler(object sender, KeyEventArgs e)

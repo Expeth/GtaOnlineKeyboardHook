@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -12,7 +13,7 @@ namespace GtaKeyboardHook.Infrastructure
 {
     public class PreviewImageHolder : IExecutable<(Point pixel, Color axisColor)>, IBitmapHolder, INotifyPropertyChanged
     {
-        public void Execute((Point pixel, Color axisColor) param, CancellationToken token)
+        public void Execute((Point pixel, Color axisColor) param, CancellationToken token, Action callback = null)
         {   
             var screenResolution = Win32ApiHelper.GetScreenResolution();
             var desktopScreenshot = Win32ApiHelper.GetDesktopScreenshot(screenResolution.width, screenResolution.height);
@@ -27,6 +28,8 @@ namespace GtaKeyboardHook.Infrastructure
             
             bitmapSource.Freeze();
             Instance = bitmapSource;
+
+            callback?.Invoke();
         }
 
         //TODO: consider to move these methods to a helper
