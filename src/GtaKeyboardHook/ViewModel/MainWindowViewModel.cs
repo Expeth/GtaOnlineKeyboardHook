@@ -84,6 +84,8 @@ namespace GtaKeyboardHook.ViewModel
             _previewUpdateTask.Execute((() => new Point(CoordinateX, CoordinateY), DisableHookCommand.CanExecute),
                 CancellationToken.None);
 
+            _screenResolution = Win32ApiHelper.GetScreenResolution();
+            
             try
             {
                 _hookedColor = ColorHelper.FromRgb(_appConfigProvider.GetConfig().HookedRgbColorCode);
@@ -146,6 +148,7 @@ namespace GtaKeyboardHook.ViewModel
         private readonly KeyboardHook _keyboardHook;
         private readonly MediaPlayer _mediaPlayer;
         private CancellationTokenSource _pixelHookCancellationTokenSource;
+        private (int width, int height) _screenResolution;
         private IEnumerable<string> _keys;
         private Color _hookedColor;
 
@@ -181,6 +184,7 @@ namespace GtaKeyboardHook.ViewModel
             get => _appConfigProvider.GetConfig().HookedCoordinateX;
             set
             {
+                if (value > _screenResolution.width || value < 0) return;
                 _appConfigProvider.GetConfig().HookedCoordinateX = value;
             }
         }
@@ -190,6 +194,7 @@ namespace GtaKeyboardHook.ViewModel
             get => _appConfigProvider.GetConfig().HookedCoordinateY;
             set
             {
+                if (value > _screenResolution.height || value < 0) return;
                 _appConfigProvider.GetConfig().HookedCoordinateY = value;
             }
         }
