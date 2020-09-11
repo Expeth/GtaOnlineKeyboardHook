@@ -7,21 +7,25 @@ using Serilog.Context;
 
 namespace GtaKeyboardHook.Infrastructure.BackgroundWorkers
 {
-    public abstract class BaseBackgoundWorker<TParameter> : IBackgroundWorker<TParameter>
+    public abstract class BaseBackgoundWorker<TParameter> : IExecutable<TParameter>
     {
         protected static readonly ILogger Logger = Log.ForContext<BaseBackgoundWorker<TParameter>>();
 
         private Task _backgroundTask;
-        private ITaskFactory _taskFactory;
+        private readonly ITaskFactory _taskFactory;
 
         protected BaseBackgoundWorker(ITaskFactory factory)
         {
             _taskFactory = factory;
         }
 
-        public void Execute(TParameter param, CancellationToken token)
+        public void Execute(TParameter param, CancellationToken token, Action callback = null)
         {
-            _backgroundTask = _taskFactory.GetInstance(() => ExecuteInternal(param, token), token);
+            _backgroundTask = _taskFactory.GetInstance(() =>
+            {
+                ExecuteInternal(param, token);
+                callback?.Invoke();
+            }, token);
 
             using var _ = LogContext.PushProperty("CorrelationID", new Guid());
 

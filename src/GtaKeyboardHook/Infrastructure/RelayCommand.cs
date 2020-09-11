@@ -5,8 +5,8 @@ namespace GtaKeyboardHook.Infrastructure
 {
     public class RelayCommand : ICommand
     {
-        readonly Action<object> _action;
-        readonly Predicate<object> _predicate;
+        private readonly Action<object> _action;
+        private readonly Predicate<object> _predicate;
 
         public RelayCommand(Action<object> a,
             Predicate<object> p = null)
@@ -29,8 +29,8 @@ namespace GtaKeyboardHook.Infrastructure
 
         public event EventHandler CanExecuteChanged
         {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
         }
     }
 }
