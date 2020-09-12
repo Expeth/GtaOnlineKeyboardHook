@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Windows.Forms;
 using System.Windows.Media.Imaging;
 using GtaKeyboardHook.Infrastructure.BackgroundWorkers;
 using GtaKeyboardHook.Infrastructure.Helpers;
@@ -15,8 +16,7 @@ namespace GtaKeyboardHook.Infrastructure
     {
         public void Execute((Point pixel, Color axisColor) param, CancellationToken token, Action callback = null)
         {   
-            var screenResolution = Win32ApiHelper.GetScreenResolution();
-            var desktopScreenshot = Win32ApiHelper.GetDesktopScreenshot(screenResolution.width, screenResolution.height);
+            var desktopScreenshot = GetDesktopScreenshot();
             var extendedScreenshot = ExtendBitmap(desktopScreenshot, 70, 70);
             
             //TODO: move width and height to a configuration
@@ -54,6 +54,17 @@ namespace GtaKeyboardHook.Infrastructure
             graphics.DrawLine(pen, new Point(0, 35), new Point(70, 35));
 
             return source;
+        }
+
+        private Bitmap GetDesktopScreenshot()
+        {
+            var bounds = Screen.PrimaryScreen.Bounds;
+            var bitmap = new Bitmap(bounds.Width, bounds.Height);
+            
+            using var graphics = Graphics.FromImage(bitmap);
+            graphics.CopyFromScreen(new Point(bounds.Left, bounds.Top), Point.Empty, bounds.Size);
+            
+            return bitmap;
         }
 
         private BitmapSource _previewImage;

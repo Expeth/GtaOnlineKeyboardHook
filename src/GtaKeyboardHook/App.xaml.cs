@@ -2,6 +2,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 using GtaKeyboardHook.Infrastructure;
 using GtaKeyboardHook.Infrastructure.BackgroundWorkers;
 using GtaKeyboardHook.Infrastructure.BackgroundWorkers.TaskFactories;
@@ -10,6 +11,7 @@ using GtaKeyboardHook.Model.Parameters;
 using GtaKeyboardHook.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Serilog.Core;
 using TinyMessenger;
 
 namespace GtaKeyboardHook
@@ -36,6 +38,20 @@ namespace GtaKeyboardHook
             SetupLogger(services);
             SetupInfrastructure(services);
             SetupMainWindow(services);
+            SetupGlobalExceptionHandling();
+        }
+
+        private void SetupGlobalExceptionHandling()
+        {
+            AppDomain.CurrentDomain.UnhandledException += HandleGlobalException;
+        }
+
+        private void HandleGlobalException(object sender, UnhandledExceptionEventArgs e)
+        {
+            var logMessage = "An unhandled exception occured in the application.";
+            
+            Log.Error(e.ExceptionObject as Exception, logMessage);
+            MessageBox.Show(logMessage + "\n" + (Exception)e.ExceptionObject);
         }
 
         private void SetupInfrastructure(IServiceCollection services)
