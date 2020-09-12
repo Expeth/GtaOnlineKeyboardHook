@@ -67,24 +67,6 @@ namespace GtaKeyboardHook.Infrastructure.Helpers
             return (width, height);
         }
 
-        public static Bitmap GetDesktopScreenshot(int width, int height)
-        {
-            var window = User32.GetDesktopWindow();
-            var hdc = User32.GetDC(window);
-            var memoryDc = Gdi32.CreateCompatibleDC(hdc);
-            HBITMAP hBitmap = Gdi32.CreateCompatibleBitmap(hdc, width, height);
-            HBITMAP hOldBitmap = Gdi32.SelectObject(memoryDc, hBitmap);
-            
-            Gdi32.BitBlt(memoryDc, 0, 0, width, height, hdc, 0, 0, Gdi32.RasterOperationMode.SRCCOPY);
-            hBitmap = Gdi32.SelectObject(memoryDc, hOldBitmap);
-
-            User32.ReleaseDC(window, hdc);
-            Gdi32.DeleteDC(memoryDc);
-            Gdi32.DeleteObject(hOldBitmap);
-            
-            return Image.FromHbitmap(hBitmap.DangerousGetHandle());
-        }
-
         public static void SendKeyPressedEvent(Keys code, bool isKeyUp)
         {
             var input = new User32.INPUT();
